@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat app</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding-bottom: 3rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        #form {
+            background: rgba(0, 0, 0, 0.15);
+            padding: 0.25rem;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            height: 3rem;
+            box-sizing: border-box;
+            backdrop-filter: blur(10px);
+        }
+
+        #input {
+            border: none;
+            padding: 0 1rem;
+            flex-grow: 1;
+            border-radius: 2rem;
+            margin: 0.25rem;
+        }
+
+        #input:focus {
+            outline: none;
+        }
+
+        #form>button {
+            background: #333;
+            border: none;
+            padding: 0 1rem;
+            margin: 0.25rem;
+            border-radius: 3px;
+            outline: none;
+            color: #fff;
+        }
+
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #messages>li {
+            padding: 0.5rem 1rem;
+        }
+
+        #messages>li:nth-child(odd) {
+            background: #efefef;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <ul id="messages">
+
+    </ul>
+    <form id="form" action="">
+        <input id="input" autocomplete="off" /><button>Send</button>
+    </form>
+
+
+    <!--  URL of socket.io where a lot of scripts are written this is because we use libruary on client side but on server side we alredy used module  -->
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+    <!-- all local scripts -->
+
+    <script>
+
+        // get io ( I_nput O_utput) from upper url and store into the variable named "socket"
+        const socket = io();
+        
+        // getting html elements in js
+        const form = document.getElementById('form');
+        const input = document.getElementById('input');
+        const messages = document.getElementById('messages');
+
+        // using eventListener on form to get value and send it to server
+        form.addEventListener('submit', (e) => {
+
+            // to prevent form from auto refreshing the page
+            e.preventDefault();
+
+            // check if there is value in input field then send it to server
+            if (input.value) {
+
+                // emit keyword is use to send input value to the server with name of "message chat"
+                socket.emit('message chat', input.value);
+
+                // reset the input field empty
+                input.value = '';
+
+                // uncomment it
+                // socket.emit('hello', 1, '2', { 3: '4', 5: Uint8Array.from([6]) }); // its an example that we can send more then two arguments to the server
+            }
+        });
+
+        // its second step to get value comes from server with name of "chat message" and use is
+        socket.on('chat message', (msg) => {
+
+            // creating a new element in html of li
+            const item = document.createElement('li');
+ 
+            // put value comes from server in that element
+            item.textContent = msg;
+
+            // place this element to append of "ul" element
+            messages.appendChild(item);
+
+            // js scroll document 0 unit in x-axis and true unit in y-axis
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+    </script>
+
+</body>
+
+</html>
